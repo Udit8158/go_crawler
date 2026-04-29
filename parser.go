@@ -1,7 +1,38 @@
-package parser
+package main
+
+import (
+	"fmt"
+	"io"
+
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
+)
+
+// Getting a Reader (html) and returning all the urls in the page in order as a slice. Urls are raw not parsed
+func ParseUrlsFromHTML(r io.Reader) ([]string, error) {
+	var urls []string
+	doc, err := html.Parse(r)
+
+	if err != nil {
+		return nil, fmt.Errorf("parsing html %w", err)
+	}
+
+	for n := range doc.Descendants() {
+		if n.Type == html.ElementNode && n.DataAtom == atom.A {
+			for _, a := range n.Attr {
+				if a.Key == "href" {
+					urls = append(urls, a.Val)
+					break
+				}
+			}
+		}
+	}
+
+	return urls, nil
+}
 
 // <a href="<url>"> ....
-func ParseUrlsFromHTML(html string) []string {
+func ParseUrlsFromHTMLMannual(html string) []string {
 	var urls []string
 
 	// outer loop

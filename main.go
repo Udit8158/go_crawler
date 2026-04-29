@@ -2,11 +2,8 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-
-	parser "example.com/m/lib"
 )
 
 func crawl(url string) error {
@@ -18,16 +15,14 @@ func crawl(url string) error {
 	// close the reader to prevent from resource leaks
 	defer resp.Body.Close()
 
-	data, err := io.ReadAll(resp.Body)
+	urls, err := ParseUrlsFromHTML(resp.Body)
 
 	if err != nil {
-		return fmt.Errorf("reading responese body: %w", err)
+		return err
 	}
 
-	html := string(data)
-
-	urls := parser.ParseUrlsFromHTML(html)
 	fmt.Println(len(urls))
+	fmt.Println(urls)
 
 	return nil
 }
